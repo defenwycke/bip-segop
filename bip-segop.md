@@ -79,6 +79,8 @@ segOP addresses these issues with minimal, well-scoped changes:
 4. A **binding commitment** via P2SOP, ensuring integrity even after pruning.  
 5. A path for **safe optional pruning**, lowering storage burden.
 
+segOP is intentionally not designed to be cheaper or easier than existing embedding techniques. The goal is to provide an explicit, policy-defined location for non-monetary data with predictable validation and retention semantics, even at higher cost. For some applications, the incentive is reduced policy risk and clearer operator intent—not fee minimization.
+
 segOP does not classify or judge data—its purpose is structural clarity and safe
 handling.
 
@@ -226,12 +228,21 @@ for future policy.
 Nodes:
 
 - MUST validate full segOP payloads on block acceptance,  
-- MUST retain them for a validation window (e.g., 24 blocks),  
+- MUST retain them for a validation window (e.g., 288 blocks, ~2 days),  
 - MAY prune payload bytes thereafter,  
 - MUST keep all consensus-critical data (tx header, Merkle root, P2SOP).
 
+Shorter windows are not implied to be reorg-safe and are not specified by this proposal.
+
 Pruned payloads may be fetched from archival peers via dedicated P2P messages
 (as defined in the extended spec).
+
+### Optional payload omission during IBD (non-normative; future work)
+The P2SOP anchor and commitment-hash structure makes it possible in principle to allow nodes to defer retrieval of historical segOP payload bytes during initial block download (IBD), once the commitment has been validated.
+
+However, this proposal does not specify the semantics required for such a mode (commitment-only validation rules, reorg handling, availability guarantees, DoS considerations, etc.). Therefore, as written, this proposal treats segOP payload processing as required during IBD.
+
+Any future payload-omission mechanism would be opt-in and role-dependent (e.g., archive nodes retain full payloads; operator nodes may choose to omit historical payload bytes).
 
 # Interaction with BUDS (Informative)
 
